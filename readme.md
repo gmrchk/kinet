@@ -68,5 +68,5 @@ Removes handler.
 ```javascript
 kinet.off('tick', handler); // removes single handler
 kinet.off('tick'); // removes all handlers for 'tick' event
-kinet.off('); // removes all handlers
+kinet.off(); // removes all handlers
 ```

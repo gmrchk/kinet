@@ -1,6 +1,6 @@
 {
   "name": "kinet",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Change value with kinetic force.",
   "main": "lib/index.js",
   "scripts": {
@@ -16,10 +16,8 @@
     "url": "https://github.com/gmrchk/kinet.git"
   },
   "keywords": [
-    "css",
-    "animation",
-    "page",
-    "transition"
+    "kinetic",
+    "animation"
   ],
   "dependencies": {},
   "devDependencies": {
