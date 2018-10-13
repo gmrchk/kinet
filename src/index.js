@@ -1,60 +1,96 @@
 export default class Kinet {
+
     constructor(options) {
         this._handlers = {
+            set: [],
             start: [],
             tick: [],
             end: [],
         };
 
-        this._friction = options && options.friction ? 1 - options.friction : 1 - 0.3;
-        this._acceleration = options && options.acceleration ? options.acceleration : 0.04;
-        this._raf = null;
-        this._target = options && options.initialValue ? options.initialValue : 0;
+        let dafaults = {
+            friction: 1 - 0.3,
+            acceleration: 0.04,
+            initialValue: 0,
+            names: ["x"],
+        };
 
-        this.current = options && options.initialValue ? options.initialValue : 0;
-        this.velocity = 0;
-    }
+        this._options = {
+            ...dafaults,
+            ...options,
+        };
 
-    set target(num) {
-        this._target = num;
-        if (!this._raf) {
-            this._handlers['start'].forEach(handler => handler(this.current, this.target));
-            this.animate();
+        // to set correct value (1 - x)
+        if (options && options.friction) {
+            this._options.friction = 1 - options.friction;
         }
-        return this._target;
+
+        this._instances = {};
+        this._options.names.forEach(name => {
+            this._instances[name] = new Item(this._options.initialValue, this._options.acceleration, this._options.friction);
+        });
+
+        this._raf = null;
     }
 
-    get target() {
-        return this._target;
+    set(name, num) {
+        if (num == null) {
+            console.warn('Define a value.');
+            return;
+        }
+        if (this._instances[name] == null) {
+            console.warn(`Instance "${name}" doesn't exist.`);
+            return;
+        }
+        this._instances[name].current = num;
+        this._instances[name].target = num;
+        if (!this._raf) {
+            this._handlers['set'].forEach(handler => handler(this._instances[name].current));
+            this._handlers['tick'].forEach(handler => handler(this._instances[name].current));
+        }
     }
 
-    animate() {
-        let distance = this.update();
+    animate(name, num) {
+        if (num == null) {
+            console.warn('Define a value.');
+            return;
+        }
+        if (this._instances[name] == null) {
+            console.warn(`Instance ${name} doesn't exist.`);
+            return;
+        }
+        this._instances[name].target = num;
+        if (!this._raf) {
+            this._handlers['start'].forEach(handler => handler(this._instances[name].current, this._instances[name].target));
+            this._animateValues();
+        }
+        return num;
+    }
 
-        if (Math.abs(this.current - this.target) > 0.1) {
-            this._raf = requestAnimationFrame(this.animate.bind(this));
-            this._handlers['tick'].forEach(handler => handler(this.current, this.target));
+    _animateValues() {
+        let done = true;
+
+        Object.keys(this._instances).forEach(key => {
+            this._instances[key].update();
+
+            if (Math.abs(this._instances[key].current - this._instances[key].target) > 0.1) {
+                done = false;
+            }
+        });
+
+        if (!done) {
+            this._raf = requestAnimationFrame(this._animateValues.bind(this));
+            this._handlers['tick'].forEach(handler => handler(this._instances));
         } else {
-            this.current = this.target;
-            this._handlers['end'].forEach(handler => handler(this.current, this.target));
+            // set to final values
+            Object.keys(this._instances).forEach(key => {
+                this._instances[key].current = this._instances[key].target;
+                this._instances[key].velocity = 0;
+            });
+
+            this._handlers['end'].forEach(handler => handler(this._instances));
             this._raf = null;
         }
-    }
-
-    update() {
-        const distance = this.target - this.current;
-        const attraction = distance * this._acceleration;
-
-        this.applyForce(attraction);
-
-        this.velocity *= this._friction;
-        this.current += this.velocity;
-
-        return distance;
-    }
-
-    applyForce(force) {
-        this.velocity += force;
     }
 
     on(event, handler) {
@@ -83,5 +119,32 @@ export default class Kinet {
         } else {
             this._handlers = {};
         }
+    }
+
+}
+
+class Item {
+    constructor(intitalValue, acceleration, friction) {
+        this.current = intitalValue;
+        this.target = intitalValue;
+        this._acceleration = acceleration;
+        this._friction = friction;
+        this.velocity = 0;
+    }
+
+    update() {
+        const distance = this.target - this.current;
+        const attraction = distance * this._acceleration;
+
+        this.applyForce(attraction);
+
+        this.velocity *= this._friction;
+        this.current += this.velocity;
+
+        return distance;
+    }
+
+    applyForce(force) {
+        this.velocity += force;
     }
 }

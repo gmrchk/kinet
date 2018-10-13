@@ -120,66 +120,125 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Kinet = function () {
     function Kinet(options) {
+        var _this = this;
+
         _classCallCheck(this, Kinet);
 
         this._handlers = {
+            set: [],
             start: [],
             tick: [],
             end: []
         };
 
-        this._friction = options && options.friction ? 1 - options.friction : 1 - 0.3;
-        this._acceleration = options && options.acceleration ? options.acceleration : 0.04;
-        this._raf = null;
-        this._target = options && options.initialValue ? options.initialValue : 0;
+        var dafaults = {
+            friction: 1 - 0.3,
+            acceleration: 0.04,
+            initialValue: 0,
+            names: ["x"]
+        };
 
-        this.current = options && options.initialValue ? options.initialValue : 0;
-        this.velocity = 0;
+        this._options = _extends({}, dafaults, options);
+
+        // to set correct value (1 - x)
+        if (options && options.friction) {
+            this._options.friction = 1 - options.friction;
+        }
+
+        this._instances = {};
+        this._options.names.forEach(function (name) {
+            _this._instances[name] = new Item(_this._options.initialValue, _this._options.acceleration, _this._options.friction);
+        });
+
+        this._raf = null;
     }
 
     _createClass(Kinet, [{
-        key: 'animate',
-        value: function animate() {
-            var _this = this;
+        key: 'set',
+        value: function set(name, num) {
+            var _this2 = this;
 
-            var distance = this.update();
-
-            if (Math.abs(this.current - this.target) > 0.1) {
-                this._raf = requestAnimationFrame(this.animate.bind(this));
+            if (num == null) {
+                console.warn('Define a value.');
+                return;
+            }
+            if (this._instances[name] == null) {
+                console.warn('Instance "' + name + '" doesn\'t exist.');
+                return;
+            }
+            this._instances[name].current = num;
+            this._instances[name].target = num;
+            if (!this._raf) {
+                this._handlers['set'].forEach(function (handler) {
+                    return handler(_this2._instances[name].current);
+                });
                 this._handlers['tick'].forEach(function (handler) {
-                    return handler(_this.current, _this.target);
+                    return handler(_this2._instances[name].current);
                 });
-            } else {
-                this.current = this.target;
-                this._handlers['end'].forEach(function (handler) {
-                    return handler(_this.current, _this.target);
-                });
-                this._raf = null;
             }
         }
     }, {
-        key: 'update',
-        value: function update() {
-            var distance = this.target - this.current;
-            var attraction = distance * this._acceleration;
+        key: 'animate',
+        value: function animate(name, num) {
+            var _this3 = this;
 
-            this.applyForce(attraction);
-
-            this.velocity *= this._friction;
-            this.current += this.velocity;
-
-            return distance;
+            if (num == null) {
+                console.warn('Define a value.');
+                return;
+            }
+            if (this._instances[name] == null) {
+                console.warn('Instance ' + name + ' doesn\'t exist.');
+                return;
+            }
+            this._instances[name].target = num;
+            if (!this._raf) {
+                this._handlers['start'].forEach(function (handler) {
+                    return handler(_this3._instances[name].current, _this3._instances[name].target);
+                });
+                this._animateValues();
+            }
+            return num;
         }
     }, {
-        key: 'applyForce',
-        value: function applyForce(force) {
-            this.velocity += force;
+        key: '_animateValues',
+        value: function _animateValues() {
+            var _this4 = this;
+
+            var done = true;
+
+            Object.keys(this._instances).forEach(function (key) {
+                _this4._instances[key].update();
+
+                if (Math.abs(_this4._instances[key].current - _this4._instances[key].target) > 0.1) {
+                    done = false;
+                }
+            });
+
+            if (!done) {
+                this._raf = requestAnimationFrame(this._animateValues.bind(this));
+                this._handlers['tick'].forEach(function (handler) {
+                    return handler(_this4._instances);
+                });
+            } else {
+                // set to final values
+                Object.keys(this._instances).forEach(function (key) {
+                    _this4._instances[key].current = _this4._instances[key].target;
+                    _this4._instances[key].velocity = 0;
+                });
+
+                this._handlers['end'].forEach(function (handler) {
+                    return handler(_this4._instances);
+                });
+                this._raf = null;
+            }
         }
     }, {
         key: 'on',
@@ -215,29 +274,46 @@ var Kinet = function () {
                 this._handlers = {};
             }
         }
-    }, {
-        key: 'target',
-        set: function set(num) {
-            var _this2 = this;
-
-            this._target = num;
-            if (!this._raf) {
-                this._handlers['start'].forEach(function (handler) {
-                    return handler(_this2.current, _this2.target);
-                });
-                this.animate();
-            }
-            return this._target;
-        },
-        get: function get() {
-            return this._target;
-        }
     }]);
 
     return Kinet;
 }();
 
 exports.default = Kinet;
+
+var Item = function () {
+    function Item(intitalValue, acceleration, friction) {
+        _classCallCheck(this, Item);
+
+        this.current = intitalValue;
+        this.target = intitalValue;
+        this._acceleration = acceleration;
+        this._friction = friction;
+        this.velocity = 0;
+    }
+
+    _createClass(Item, [{
+        key: 'update',
+        value: function update() {
+            var distance = this.target - this.current;
+            var attraction = distance * this._acceleration;
+
+            this.applyForce(attraction);
+
+            this.velocity *= this._friction;
+            this.current += this.velocity;
+
+            return distance;
+        }
+    }, {
+        key: 'applyForce',
+        value: function applyForce(force) {
+            this.velocity += force;
+        }
+    }]);
+
+    return Item;
+}();
 
 /***/ })
 /******/ ]);

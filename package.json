@@ -1,7 +1,7 @@
 {
   "name": "kinet",
-  "version": "1.0.2",
-  "description": "Change value with kinetic force.",
+  "version": "2.0.0",
+  "description": "Animate stuff with kinetic force.",
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
