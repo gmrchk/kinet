@@ -43,15 +43,15 @@ var kinet = new Kinet({name: ["x", "y"]});
 ### set
 Sets value of current and target of animated instance to required value without animating. 
 ```javascript
-    var kinet = new Kinet();
-    kinet.set("x", 10); // sets to number 10
+var kinet = new Kinet();
+kinet.set("x", 10); // sets to number 10
 ```
 
 ### animate
 Animates value of current variable of animated instance to target value without animating. 
 ```javascript
-    var kinet = new Kinet();
-    kinet.animate("x", 10); // animates to number 10
+var kinet = new Kinet();
+kinet.animate("x", 10); // animates to number 10
 ```
 
 ### on
@@ -63,10 +63,8 @@ var kinet = new Kinet();
 
 // set handler
 kinet.on('tick', function () {
-    // do something on animating values
+    // do something on every animation tick
 });
-
-kinet.target = 15;
 ```
 
 

@@ -155,7 +155,7 @@ var Kinet = function () {
 
         this._instances = {};
         this._options.names.forEach(function (name) {
-            _this._instances[name] = new Item(_this._options.initialValue, _this._options.acceleration, _this._options.friction);
+            _this._instances[name] = new KinetItem(_this._options.initialValue, _this._options.acceleration, _this._options.friction);
         });
 
         this._raf = null;
@@ -178,10 +178,10 @@ var Kinet = function () {
             this._instances[name].target = num;
             if (!this._raf) {
                 this._handlers['set'].forEach(function (handler) {
-                    return handler(_this2._instances[name].current);
+                    return handler(_this2._instances);
                 });
                 this._handlers['tick'].forEach(function (handler) {
-                    return handler(_this2._instances[name].current);
+                    return handler(_this2._instances);
                 });
             }
         }
@@ -201,7 +201,7 @@ var Kinet = function () {
             this._instances[name].target = num;
             if (!this._raf) {
                 this._handlers['start'].forEach(function (handler) {
-                    return handler(_this3._instances[name].current, _this3._instances[name].target);
+                    return handler(_this3._instances, _this3._instances);
                 });
                 this._animateValues();
             }
@@ -281,9 +281,9 @@ var Kinet = function () {
 
 exports.default = Kinet;
 
-var Item = function () {
-    function Item(intitalValue, acceleration, friction) {
-        _classCallCheck(this, Item);
+var KinetItem = function () {
+    function KinetItem(intitalValue, acceleration, friction) {
+        _classCallCheck(this, KinetItem);
 
         this.current = intitalValue;
         this.target = intitalValue;
@@ -292,7 +292,7 @@ var Item = function () {
         this.velocity = 0;
     }
 
-    _createClass(Item, [{
+    _createClass(KinetItem, [{
         key: 'update',
         value: function update() {
             var distance = this.target - this.current;
@@ -312,7 +312,7 @@ var Item = function () {
         }
     }]);
 
-    return Item;
+    return KinetItem;
 }();
 
 /***/ })

@@ -27,7 +27,7 @@ export default class Kinet {
 
         this._instances = {};
         this._options.names.forEach(name => {
-            this._instances[name] = new Item(this._options.initialValue, this._options.acceleration, this._options.friction);
+            this._instances[name] = new KinetItem(this._options.initialValue, this._options.acceleration, this._options.friction);
         });
 
         this._raf = null;
@@ -45,8 +45,8 @@ export default class Kinet {
         this._instances[name].current = num;
         this._instances[name].target = num;
         if (!this._raf) {
-            this._handlers['set'].forEach(handler => handler(this._instances[name].current));
-            this._handlers['tick'].forEach(handler => handler(this._instances[name].current));
+            this._handlers['set'].forEach(handler => handler(this._instances));
+            this._handlers['tick'].forEach(handler => handler(this._instances));
         }
     }
 
@@ -61,7 +61,7 @@ export default class Kinet {
         }
         this._instances[name].target = num;
         if (!this._raf) {
-            this._handlers['start'].forEach(handler => handler(this._instances[name].current, this._instances[name].target));
+            this._handlers['start'].forEach(handler => handler(this._instances, this._instances));
             this._animateValues();
         }
         return num;
@@ -123,7 +123,7 @@ export default class Kinet {
 
 }
 
-class Item {
+class KinetItem {
     constructor(intitalValue, acceleration, friction) {
         this.current = intitalValue;
         this.target = intitalValue;
