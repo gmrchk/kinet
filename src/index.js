@@ -88,6 +88,7 @@ export default class Kinet {
                 this._instances[key].velocity = 0;
             });
 
+            this._handlers['tick'].forEach(handler => handler(this._instances));
             this._handlers['end'].forEach(handler => handler(this._instances));
             this._raf = null;
         }

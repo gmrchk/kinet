@@ -234,6 +234,9 @@ var Kinet = function () {
                     _this4._instances[key].velocity = 0;
                 });
 
+                this._handlers['tick'].forEach(function (handler) {
+                    return handler(_this4._instances);
+                });
                 this._handlers['end'].forEach(function (handler) {
                     return handler(_this4._instances);
                 });
