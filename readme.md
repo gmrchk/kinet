@@ -35,6 +35,17 @@ Sets the initial value of `current` and `target` variables in animated instances
 ### names
 Array of names (strings). Kinet creates animated instance for each name. Defaults to single `x` value in array.
 
+### test
+Function testing whether the animation has finished. Function gets and animated instance as an argument. 
+When test function returns false for all animated instances, Kinet stops the animation and sets values to target values.  
+
+```javascript
+// default value
+test: function (instance) {
+    return Math.abs(instance.current - instance.target) > 0.1;
+}
+```
+
 ## Methods
 ```javascript
 var kinet = new Kinet({name: ["x", "y"]});

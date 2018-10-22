@@ -13,6 +13,9 @@ export default class Kinet {
             acceleration: 0.04,
             initialValue: 0,
             names: ["x"],
+            test: function (instance) {
+                return Math.abs(instance.current - instance.target) > 0.1;
+            },
         };
 
         this._options = {
@@ -59,12 +62,16 @@ export default class Kinet {
             console.warn(`Instance ${name} doesn't exist.`);
             return;
         }
-        this._instances[name].target = num;
-        if (!this._raf) {
-            this._handlers['start'].forEach(handler => handler(this._instances, this._instances));
-            this._animateValues();
+        if (this._instances[name].target !== num) {
+            this._instances[name].target = num;
+            if (!this._raf) {
+                this._handlers['start'].forEach(handler => handler(this._instances, this._instances));
+                this._animateValues();
+            }
+            return num;
         }
-        return num;
+
+        return false;
     }
 
     _animateValues() {
@@ -73,7 +80,7 @@ export default class Kinet {
         Object.keys(this._instances).forEach(key => {
             this._instances[key].update();
 
-            if (Math.abs(this._instances[key].current - this._instances[key].target) > 0.1) {
+            if (this._options.test(this._instances[key])) {
                 done = false;
             }
         });

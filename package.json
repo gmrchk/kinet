@@ -1,6 +1,6 @@
 {
   "name": "kinet",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "Animate stuff with kinetic force.",
   "main": "lib/index.js",
   "scripts": {

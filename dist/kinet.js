@@ -143,7 +143,10 @@ var Kinet = function () {
             friction: 1 - 0.3,
             acceleration: 0.04,
             initialValue: 0,
-            names: ["x"]
+            names: ["x"],
+            test: function test(instance) {
+                return Math.abs(instance.current - instance.target) > 0.1;
+            }
         };
 
         this._options = _extends({}, dafaults, options);
@@ -198,14 +201,18 @@ var Kinet = function () {
                 console.warn('Instance ' + name + ' doesn\'t exist.');
                 return;
             }
-            this._instances[name].target = num;
-            if (!this._raf) {
-                this._handlers['start'].forEach(function (handler) {
-                    return handler(_this3._instances, _this3._instances);
-                });
-                this._animateValues();
+            if (this._instances[name].target !== num) {
+                this._instances[name].target = num;
+                if (!this._raf) {
+                    this._handlers['start'].forEach(function (handler) {
+                        return handler(_this3._instances, _this3._instances);
+                    });
+                    this._animateValues();
+                }
+                return num;
             }
-            return num;
+
+            return false;
         }
     }, {
         key: '_animateValues',
@@ -217,7 +224,7 @@ var Kinet = function () {
             Object.keys(this._instances).forEach(function (key) {
                 _this4._instances[key].update();
 
-                if (Math.abs(_this4._instances[key].current - _this4._instances[key].target) > 0.1) {
+                if (_this4._options.test(_this4._instances[key])) {
                     done = false;
                 }
             });
