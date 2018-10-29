@@ -125,7 +125,9 @@ export default class Kinet {
                 this._handlers[event] = [];
             }
         } else {
-            this._handlers = {};
+            Object.keys(this._handlers).forEach(keys => {
+                this._handlers[keys] = [];
+            });
         }
     }
 

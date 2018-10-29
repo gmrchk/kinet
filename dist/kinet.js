@@ -262,6 +262,8 @@ var Kinet = function () {
     }, {
         key: 'off',
         value: function off(event, handler) {
+            var _this5 = this;
+
             if (event != null) {
                 if (handler != null) {
                     if (this._handlers[event] && this._handlers[event].filter(function (savedHandler) {
@@ -281,7 +283,9 @@ var Kinet = function () {
                     this._handlers[event] = [];
                 }
             } else {
-                this._handlers = {};
+                Object.keys(this._handlers).forEach(function (keys) {
+                    _this5._handlers[keys] = [];
+                });
             }
         }
     }]);
