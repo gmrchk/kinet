@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600" rel="stylesheet">
+    <title>Kinet</title>
+    <style>
+        html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Source Sans Pro',-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif;
+        }
+
+        .wrapper {
+            perspective: 800px;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            cursor: default;
+        }
+
+        h1 {
+            font-size: 30px;
+            margin: 0 auto 10px;
+        }
+
+        p {
+            font-size: 20px;
+            margin: 0 auto 30px;
+        }
+
+        a {
+            color: #232323;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .circle {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(to top left, #0062bE, #00A2FE);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin: -20px 0 0 -20px;
+            pointer-events: none;
+            mix-blend-mode: multiply;
+            z-index: 10;
+        }
+    </style>
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="wrapper-inner">
+            <h1><a href="https://github.com/gmrchk/kinet">Kinet</a></h1>
+            <p><a href="https://github.com/gmrchk/kinet/blob/master/docs/index.html">Source</a></p>
+            <a class="github-button" href="https://github.com/gmrchk/kinet" data-icon="octicon-star" data-size="large" aria-label="Star gmrchk/kinet on GitHub">Star</a>
+        </div>
+    </div>
+    <div id="circle" class="circle"></div>
+
+    <script src="../dist/kinet.js"></script>
+    <script>
+        // create instance of kinet with custom settings
+        var kinet = new Kinet({
+            acceleration: 0.06,
+            friction: 0.20,
+            names: ["x", "y"],
+        });
+
+        // select circle element
+        var circle = document.getElementById('circle');
+
+        // set handler on kinet tick event
+        kinet.on('tick', function(instances) {
+            circle.style.transform = `translate3d(${ (instances.x.current) }px, ${ (instances.y.current) }px, 0) rotateX(${ (instances.x.velocity/2) }deg) rotateY(${ (instances.y.velocity/2) }deg)`;
+        });
+
+        // call kinet animate method on mousemove
+        document.addEventListener('mousemove', function (event) {
+            kinet.animate('x', event.clientX - window.innerWidth/2);
+            kinet.animate('y', event.clientY - window.innerHeight/2);
+        });
+
+
+
+
+        // log
+        kinet.on('start', function() {
+            console.log('start');
+        });
+
+        kinet.on('end', function() {
+            console.log('end');
+        });
+    </script>
+</body>
+</html>
