@@ -1,5 +1,5 @@
 # Kinet
-Animate stuff with kinetic force. Kinet let's you animate values and use them wherever you need to.
+Kind of a most lightweight animation library of all. Kinet lets you animate with that spring effect so you can use the values wherever you need to.
 
 ## Installation
 Include Kinet with scripts tag
